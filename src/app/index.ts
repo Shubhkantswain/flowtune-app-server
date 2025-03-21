@@ -21,7 +21,7 @@ export async function initServer() {
 
     // Use CORS middleware
     app.use(cors(corsOptions));
-    app.use(bodyParser.json({ limit: "12mb" }))
+    app.use(bodyParser.json({ limit: "30mb" }))
     app.use(cookieParser())
 
     const graphqlServer = new ApolloServer({

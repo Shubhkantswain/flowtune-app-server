@@ -105,6 +105,12 @@ const mutations = {
                     resource_type: "auto",
                 });
             }
+            let uploadVideoResult = null;
+            if (videoUrl) {
+                uploadVideoResult = yield cloudinary_1.v2.uploader.upload(videoUrl, {
+                    resource_type: "auto",
+                });
+            }
             // Create track in the database
             const track = yield db_1.prismaClient.track.create({
                 data: {
@@ -113,7 +119,7 @@ const mutations = {
                     starCast,
                     duration,
                     coverImageUrl: uploadImageResult === null || uploadImageResult === void 0 ? void 0 : uploadImageResult.secure_url,
-                    videoUrl,
+                    videoUrl: uploadVideoResult === null || uploadVideoResult === void 0 ? void 0 : uploadVideoResult.secure_url,
                     audioFileUrl: uploadAudioResult.secure_url,
                     language,
                     genre,

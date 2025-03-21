@@ -1,4 +1,4 @@
 export const queries = `#graphql
-    getUserProfile(username: String!): getUserProfileResponse 
+    getUserProfile(userId: String!): getUserProfileResponse 
     getUserTracks(payload: GetUserTracksPayload!):[Track!]!
 `

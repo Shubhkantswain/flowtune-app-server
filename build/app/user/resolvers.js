@@ -12,12 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = exports.queries = void 0;
 const db_1 = require("../../clients/db");
 exports.queries = {
-    getUserProfile: (parent_1, _a, ctx_1) => __awaiter(void 0, [parent_1, _a, ctx_1], void 0, function* (parent, { username }, ctx) {
+    getUserProfile: (parent_1, _a, ctx_1) => __awaiter(void 0, [parent_1, _a, ctx_1], void 0, function* (parent, { userId }, ctx) {
         var _b;
         try {
             const currentUserId = (_b = ctx.user) === null || _b === void 0 ? void 0 : _b.id;
             const user = yield db_1.prismaClient.user.findUnique({
-                where: { username },
+                where: { id: userId },
                 select: {
                     id: true,
                     username: true,

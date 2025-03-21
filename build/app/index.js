@@ -33,7 +33,7 @@ function initServer() {
         };
         // Use CORS middleware
         app.use((0, cors_1.default)(corsOptions));
-        app.use(body_parser_1.default.json({ limit: "12mb" }));
+        app.use(body_parser_1.default.json({ limit: "30mb" }));
         app.use((0, cookie_parser_1.default)());
         const graphqlServer = new server_1.ApolloServer({
             typeDefs: `

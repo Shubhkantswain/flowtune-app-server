@@ -13,7 +13,7 @@ exports.types = `#graphql
     }
 
     input GetUserTracksPayload {
-        authorId: String!
+        userId: String!
         page: Int!
     }
 `;

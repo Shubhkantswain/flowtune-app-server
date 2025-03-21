@@ -9,14 +9,14 @@ interface GetUserTracksPayload {
 export const queries = {
   getUserProfile: async (
     parent: any,
-    { username }: { username: string },
+    { userId }: { userId: string },
     ctx: GraphqlContext
   ) => {
     try {
       const currentUserId = ctx.user?.id;
 
       const user = await prismaClient.user.findUnique({
-        where: { username },
+        where: { id: userId },
         select: {
           id: true,
           username: true,
