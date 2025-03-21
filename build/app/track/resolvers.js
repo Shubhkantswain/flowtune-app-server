@@ -23,8 +23,9 @@ const queries = {
             throw new Error("User not authenticated");
         }
         const userId = _ctx.user.id; // Get the current user's ID
+        // Fetch 8 random tracks in a single query
         const tracks = yield db_1.prismaClient.track.findMany({
-            take: 8, // Add pagination (adjust as needed)
+            take: 24, // Limit to 8 tracks
             select: {
                 id: true,
                 title: true,
@@ -40,6 +41,34 @@ const queries = {
                     select: { userId: true }, // Fetch only the necessary field
                 }
             }
+        });
+        // Shuffle the tracks array to ensure randomness
+        const shuffledTracks = tracks.sort(() => Math.random() - 0.5);
+        return shuffledTracks.map(track => (Object.assign(Object.assign({}, track), { hasLiked: track.likes.length > 0 })));
+    }),
+    getExploreTracks: (_parent_1, _a, _ctx_1) => __awaiter(void 0, [_parent_1, _a, _ctx_1], void 0, function* (_parent, { page }, _ctx) {
+        if (!_ctx.user) {
+            throw new Error("User not authenticated");
+        }
+        const userId = _ctx.user.id; // Get the current user's ID
+        const tracks = yield db_1.prismaClient.track.findMany({
+            select: {
+                id: true,
+                title: true,
+                singer: true,
+                starCast: true,
+                duration: true,
+                coverImageUrl: true,
+                videoUrl: true,
+                audioFileUrl: true,
+                authorId: true,
+                likes: {
+                    where: { userId }, // Filter only the user's likes
+                    select: { userId: true }, // Fetch only the necessary field
+                }
+            },
+            skip: (Math.max(page, 1) - 1) * 24, // Ensure pagination is safe
+            take: 24, // Limit to 5 results per page
         });
         return tracks.map(track => (Object.assign(Object.assign({}, track), { hasLiked: track.likes.length > 0 })));
     }),
