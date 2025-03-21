@@ -107,6 +107,7 @@ const queries = {
                 coverImageUrl: like.track.coverImageUrl,
                 videoUrl: like.track.videoUrl,
                 audioFileUrl: like.track.audioFileUrl,
+                hasLiked: true,
                 authorId: like.track.authorId,
             }));
         }
