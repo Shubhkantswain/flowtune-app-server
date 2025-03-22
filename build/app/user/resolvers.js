@@ -62,9 +62,9 @@ exports.queries = {
     getUserTracks: (parent_1, _a, ctx_1) => __awaiter(void 0, [parent_1, _a, ctx_1], void 0, function* (parent, { payload }, ctx) {
         var _b;
         try {
-            const { authorId, page = 1 } = payload; // Ensure page defaults to 1 if undefined
+            const { userId, page = 1 } = payload; // Ensure page defaults to 1 if undefined
             const tracks = yield db_1.prismaClient.track.findMany({
-                where: { authorId },
+                where: { authorId: userId },
                 orderBy: { createdAt: "desc" }, // Sort by latest first
                 select: {
                     id: true,

@@ -2,7 +2,7 @@ import { prismaClient } from "../../clients/db";
 import { GraphqlContext } from "../../interfaces";
 
 interface GetUserTracksPayload {
-  authorId: string;
+  userId: string;
   page: number;
 }
 
@@ -71,10 +71,10 @@ export const queries = {
     ctx: GraphqlContext
   ) => {
     try {
-      const { authorId, page = 1 } = payload; // Ensure page defaults to 1 if undefined
+      const { userId, page = 1 } = payload; // Ensure page defaults to 1 if undefined
 
       const tracks = await prismaClient.track.findMany({
-        where: { authorId },
+        where: { authorId: userId },
         orderBy: { createdAt: "desc" }, // Sort by latest first
         select: {
           id: true,
