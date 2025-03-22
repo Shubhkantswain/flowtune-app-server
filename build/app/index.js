@@ -23,6 +23,7 @@ const JWTService_1 = __importDefault(require("../services/JWTService"));
 const auth_1 = require("./auth");
 const user_1 = require("./user");
 const track_1 = require("./track");
+const playlist_1 = require("./playlist");
 function initServer() {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, express_1.default)();
@@ -33,28 +34,31 @@ function initServer() {
         };
         // Use CORS middleware
         app.use((0, cors_1.default)(corsOptions));
-        app.use(body_parser_1.default.json({ limit: "30mb" }));
+        app.use(body_parser_1.default.json({ limit: "80mb" }));
         app.use((0, cookie_parser_1.default)());
         const graphqlServer = new server_1.ApolloServer({
             typeDefs: `
             ${auth_1.Auth.types}
             ${track_1.Track.types}
             ${user_1.User.types}
+            ${playlist_1.Playlist.types}
 
             type Query {
                 ${auth_1.Auth.queries}
                 ${track_1.Track.queries}
                 ${user_1.User.queries}
+                ${playlist_1.Playlist.queries}
             }
             
             type Mutation {
                 ${auth_1.Auth.mutations}
                 ${track_1.Track.mutations}
+                ${playlist_1.Playlist.mutations}
             }
         `,
             resolvers: {
-                Query: Object.assign(Object.assign(Object.assign({}, auth_1.Auth.resolvers.queries), track_1.Track.resolvers.queries), user_1.User.resolvers.queries),
-                Mutation: Object.assign(Object.assign({}, auth_1.Auth.resolvers.mutations), track_1.Track.resolvers.mutations)
+                Query: Object.assign(Object.assign(Object.assign(Object.assign({}, auth_1.Auth.resolvers.queries), track_1.Track.resolvers.queries), user_1.User.resolvers.queries), playlist_1.Playlist.resolvers.queries),
+                Mutation: Object.assign(Object.assign(Object.assign({}, auth_1.Auth.resolvers.mutations), track_1.Track.resolvers.mutations), playlist_1.Playlist.resolvers.mutations)
             },
         });
         yield graphqlServer.start();

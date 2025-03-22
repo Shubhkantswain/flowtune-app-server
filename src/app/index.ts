@@ -9,6 +9,7 @@ import { Auth } from './auth';
 import { User } from './user';
 import { GraphqlContext } from '../interfaces';
 import { Track } from './track';
+import { Playlist } from './playlist';
 
 export async function initServer() {
     const app = express();
@@ -29,28 +30,33 @@ export async function initServer() {
             ${Auth.types}
             ${Track.types}
             ${User.types}
+            ${Playlist.types}
 
             type Query {
                 ${Auth.queries}
                 ${Track.queries}
                 ${User.queries}
+                ${Playlist.queries}
             }
             
             type Mutation {
                 ${Auth.mutations}
                 ${Track.mutations}
+                ${Playlist.mutations}
             }
         `,
         resolvers: {
             Query: {
                 ...Auth.resolvers.queries,
                 ...Track.resolvers.queries,
-                ...User.resolvers.queries
+                ...User.resolvers.queries,
+                ...Playlist.resolvers.queries
             },
 
             Mutation: {
                 ...Auth.resolvers.mutations,
-                ...Track.resolvers.mutations
+                ...Track.resolvers.mutations,
+                ...Playlist.resolvers.mutations
             }
         },
     });
