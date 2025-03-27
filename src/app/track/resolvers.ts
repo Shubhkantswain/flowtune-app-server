@@ -7,7 +7,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 export const genreIds = {
-    "Xpw1ALAB": "Love",
+    "Xpw1ALAB": "Love & Romantic",
     "K9zYb2CD": "Workout",
     "Mnp3QWE4": "Birthday Party",
     "Rst5UIO7": "Chill",

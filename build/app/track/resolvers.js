@@ -18,7 +18,7 @@ const cloudinary_1 = require("cloudinary");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 exports.genreIds = {
-    "Xpw1ALAB": "Love",
+    "Xpw1ALAB": "Love & Romantic",
     "K9zYb2CD": "Workout",
     "Mnp3QWE4": "Birthday Party",
     "Rst5UIO7": "Chill",
