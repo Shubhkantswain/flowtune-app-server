@@ -17,6 +17,8 @@ export const types = `#graphql
         fullName: String!
         bio: String
         profileImageURL: String
+        language: String!
+        isPro: Boolean!
         authToken: String!
     }
 
