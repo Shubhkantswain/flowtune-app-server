@@ -71,10 +71,10 @@ const queries = {
         }
     },
 
-    getExploreTracks: async (_parent: any, { page }: { page: number }, _ctx: GraphqlContext) => {
+    getExploreTracks: async (_parent: any, { page }: { page: number }, ctx: GraphqlContext) => {
 
-        const userId = _ctx?.user?.id; // Get the current user's ID
-        const language = _ctx?.user?.language
+        const userId = ctx?.user?.id; // Get the current user's ID
+        const language = ctx?.user?.language || "Hindi"
 
         const tracks = await prismaClient.track.findMany({
             where: {

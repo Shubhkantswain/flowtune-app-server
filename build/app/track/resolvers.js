@@ -75,10 +75,10 @@ const queries = {
             throw new Error("Failed to fetch feed tracks.");
         }
     }),
-    getExploreTracks: (_parent_1, _a, _ctx_1) => __awaiter(void 0, [_parent_1, _a, _ctx_1], void 0, function* (_parent, { page }, _ctx) {
+    getExploreTracks: (_parent_1, _a, ctx_1) => __awaiter(void 0, [_parent_1, _a, ctx_1], void 0, function* (_parent, { page }, ctx) {
         var _b, _c;
-        const userId = (_b = _ctx === null || _ctx === void 0 ? void 0 : _ctx.user) === null || _b === void 0 ? void 0 : _b.id; // Get the current user's ID
-        const language = (_c = _ctx === null || _ctx === void 0 ? void 0 : _ctx.user) === null || _c === void 0 ? void 0 : _c.language;
+        const userId = (_b = ctx === null || ctx === void 0 ? void 0 : ctx.user) === null || _b === void 0 ? void 0 : _b.id; // Get the current user's ID
+        const language = ((_c = ctx === null || ctx === void 0 ? void 0 : ctx.user) === null || _c === void 0 ? void 0 : _c.language) || "Hindi";
         const tracks = yield db_1.prismaClient.track.findMany({
             where: {
                 language
