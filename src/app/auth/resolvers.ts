@@ -124,7 +124,7 @@ const mutations = {
 
             if (!existingUser) {
                 throw new Error('Sorry, user does not exist!');
-            }
+            } 
 
             const isPasswordCorrect = await bcrypt.compare(password, existingUser.password);
 

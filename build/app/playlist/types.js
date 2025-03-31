@@ -9,21 +9,9 @@ type Playlist {
   id: ID!
   name: String!
   coverImageUrl: String!
-  visibility: Visibility!
-  author: User!
-  tracks: [Track!]!
-}
-
-type UserPlaylistsResponse {
-  playlists: [UserPlaylistsResponseItem!]
-}
-
-type UserPlaylistsResponseItem {
-  id: ID!
-  name: String!
-  coverImageUrl: String!
+  Visibility: Visibility!
   totalTracks: Int!
-  author: String!
+  authorId: String!
 }
 
 type getPlaylistTracksResponse {

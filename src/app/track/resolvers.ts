@@ -104,7 +104,6 @@ const queries = {
         const shuffledTracks = tracks.sort(() => Math.random() - 0.5);
 
         return shuffledTracks.map(track => ({
-
             ...track,
             hasLiked: userId ? track.likes.length > 0 : false, // Efficient check for user like
         }));

@@ -50,22 +50,20 @@ const queries = {
                     id: true,
                     name: true,
                     coverImageUrl: true,
-                    author: true,
-                    tracks: true
+                    Visibility: true,
+                    tracks: true,
+                    authorId: true,
                 },
             });
 
-            const playlist = playlists.map((playlist) => ({
+            return playlists.map((playlist) => ({
                 id: playlist.id,
                 name: playlist.name,
                 coverImageUrl: playlist.coverImageUrl,
+                Visibility: playlist.Visibility,
                 totalTracks: playlist.tracks[0] != "" ? playlist.tracks.length : 0,
-                author: context.user?.id
+                authorId: playlist.authorId
             }))
-
-            return {
-                playlists: playlist
-            }
         } catch (error) {
             console.error("Error fetching playlists:", error);
             throw new Error("Failed to fetch user playlists.");
@@ -81,7 +79,7 @@ const queries = {
             });
 
             if (!playlist) {
-                return { id: "", title: "", coverImageUrl: "", tracks: null }
+                throw new Error("Sorry, Playlist Not Found")
             }
 
             const trackIds = playlist?.tracks || [];
@@ -128,57 +126,6 @@ const queries = {
             throw new Error("Failed to fetch playlist tracks.");
         }
     },
-
-    getFeedPlaylists: async (parent: unknown, { playlistId }: { playlistId: string }, context: GraphqlContext) => {
-        const userId = context.user?.id;
-
-        try {
-            const playlists = await prismaClient.playlist.findMany({
-                where: {
-                    author: {
-                        followers: {
-                            some: { followerId: userId }, // Ensure the author is followed by the user
-                        },
-                    },
-                },
-                select: {
-                    id: true,
-                    name: true,
-                    coverImageUrl: true,
-                    author: {
-                        select: {
-                            id: true,
-                            profileImageURL: true,
-                            username: true
-                        }
-                    },
-                    tracks: true
-                },
-                take: 5, // Optional: Limit to 5 tracks
-                orderBy: { createdAt: 'desc' }, // Optional: Order by newest
-            });
-
-            console.log("playlits", playlists);
-
-
-            if (!playlists) {
-                return { id: "", title: "", coverImageUrl: "", tracks: null }
-            }
-
-            return {
-                playlists: playlists.map((playlist) => {
-                    return {
-                        ...playlist,
-                        totalTracks: playlist.tracks.length
-                    }
-                })
-            }
-
-        } catch (error) {
-            console.error("Error fetching playlist tracks:", error);
-            throw new Error("Failed to fetch playlist tracks.");
-        }
-    }
 };
 
 const mutations = {
@@ -200,7 +147,7 @@ const mutations = {
                 resource_type: "auto",
             });
 
-            await prismaClient.playlist.create({
+            const playlist = await prismaClient.playlist.create({
                 data: {
                     name,
                     coverImageUrl: uploadResult.secure_url,
@@ -210,7 +157,14 @@ const mutations = {
                 },
             });
 
-            return true;
+            return {
+                id: playlist.id,
+                name: playlist.name,
+                coverImageUrl: playlist.coverImageUrl,
+                Visibility: visibility,
+                totalTracks: playlist.tracks.length,
+                authorId: playlist.authorId
+            }
         } catch (error) {
             console.error("Error creating playlist:", error);
             throw new Error("Failed to create playlist.");
@@ -240,7 +194,7 @@ const mutations = {
                     });
                 }
 
-                await prismaClient.playlist.create({
+                const playlist = await prismaClient.playlist.create({
                     data: {
                         name: name || "Untitled Playlist",
                         coverImageUrl: uploadResult?.secure_url || "",
@@ -249,6 +203,16 @@ const mutations = {
                         authorId: userId,
                     },
                 });
+
+                return {
+                    id: playlist.id,
+                    name: playlist.name,
+                    coverImageUrl: playlist.coverImageUrl,
+                    Visibility: visibility,
+                    totalTracks: playlist.tracks.length,
+                    authorId: playlist.authorId
+                }
+
             } else if (existingPlaylistId) {
                 // First get the existing playlist
                 const existingPlaylist = await prismaClient.playlist.findUnique({
@@ -272,11 +236,11 @@ const mutations = {
                         tracks: { push: trackIds[0] },
                     },
                 });
+
+                return null
             } else {
                 throw new Error("Playlist ID is required for updating.");
             }
-
-            return true;
         } catch (error: any) {
             console.error("Error adding song to playlist:", error);
             throw new Error(error);

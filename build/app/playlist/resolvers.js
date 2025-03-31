@@ -31,23 +31,19 @@ const queries = {
                     id: true,
                     name: true,
                     coverImageUrl: true,
-                    author: true,
-                    tracks: true
+                    Visibility: true,
+                    tracks: true,
+                    authorId: true,
                 },
             });
-            const playlist = playlists.map((playlist) => {
-                var _a;
-                return ({
-                    id: playlist.id,
-                    name: playlist.name,
-                    coverImageUrl: playlist.coverImageUrl,
-                    totalTracks: playlist.tracks[0] != "" ? playlist.tracks.length : 0,
-                    author: (_a = context.user) === null || _a === void 0 ? void 0 : _a.id
-                });
-            });
-            return {
-                playlists: playlist
-            };
+            return playlists.map((playlist) => ({
+                id: playlist.id,
+                name: playlist.name,
+                coverImageUrl: playlist.coverImageUrl,
+                Visibility: playlist.Visibility,
+                totalTracks: playlist.tracks[0] != "" ? playlist.tracks.length : 0,
+                authorId: playlist.authorId
+            }));
         }
         catch (error) {
             console.error("Error fetching playlists:", error);
@@ -62,7 +58,7 @@ const queries = {
                 where: { id: playlistId }
             });
             if (!playlist) {
-                return { id: "", title: "", coverImageUrl: "", tracks: null };
+                throw new Error("Sorry, Playlist Not Found");
             }
             const trackIds = (playlist === null || playlist === void 0 ? void 0 : playlist.tracks) || [];
             const tracks = yield db_1.prismaClient.track.findMany({
@@ -105,49 +101,6 @@ const queries = {
             throw new Error("Failed to fetch playlist tracks.");
         }
     }),
-    getFeedPlaylists: (parent_1, _a, context_1) => __awaiter(void 0, [parent_1, _a, context_1], void 0, function* (parent, { playlistId }, context) {
-        var _b;
-        const userId = (_b = context.user) === null || _b === void 0 ? void 0 : _b.id;
-        try {
-            const playlists = yield db_1.prismaClient.playlist.findMany({
-                where: {
-                    author: {
-                        followers: {
-                            some: { followerId: userId }, // Ensure the author is followed by the user
-                        },
-                    },
-                },
-                select: {
-                    id: true,
-                    name: true,
-                    coverImageUrl: true,
-                    author: {
-                        select: {
-                            id: true,
-                            profileImageURL: true,
-                            username: true
-                        }
-                    },
-                    tracks: true
-                },
-                take: 5, // Optional: Limit to 5 tracks
-                orderBy: { createdAt: 'desc' }, // Optional: Order by newest
-            });
-            console.log("playlits", playlists);
-            if (!playlists) {
-                return { id: "", title: "", coverImageUrl: "", tracks: null };
-            }
-            return {
-                playlists: playlists.map((playlist) => {
-                    return Object.assign(Object.assign({}, playlist), { totalTracks: playlist.tracks.length });
-                })
-            };
-        }
-        catch (error) {
-            console.error("Error fetching playlist tracks:", error);
-            throw new Error("Failed to fetch playlist tracks.");
-        }
-    })
 };
 const mutations = {
     createPlaylist: (parent_1, _a, context_1) => __awaiter(void 0, [parent_1, _a, context_1], void 0, function* (parent, { payload }, context) {
@@ -161,7 +114,7 @@ const mutations = {
             const uploadResult = yield cloudinary_1.v2.uploader.upload(coverImageUrl, {
                 resource_type: "auto",
             });
-            yield db_1.prismaClient.playlist.create({
+            const playlist = yield db_1.prismaClient.playlist.create({
                 data: {
                     name,
                     coverImageUrl: uploadResult.secure_url,
@@ -170,7 +123,14 @@ const mutations = {
                     authorId: userId,
                 },
             });
-            return true;
+            return {
+                id: playlist.id,
+                name: playlist.name,
+                coverImageUrl: playlist.coverImageUrl,
+                Visibility: visibility,
+                totalTracks: playlist.tracks.length,
+                authorId: playlist.authorId
+            };
         }
         catch (error) {
             console.error("Error creating playlist:", error);
@@ -192,7 +152,7 @@ const mutations = {
                         resource_type: "auto",
                     });
                 }
-                yield db_1.prismaClient.playlist.create({
+                const playlist = yield db_1.prismaClient.playlist.create({
                     data: {
                         name: name || "Untitled Playlist",
                         coverImageUrl: (uploadResult === null || uploadResult === void 0 ? void 0 : uploadResult.secure_url) || "",
@@ -201,6 +161,14 @@ const mutations = {
                         authorId: userId,
                     },
                 });
+                return {
+                    id: playlist.id,
+                    name: playlist.name,
+                    coverImageUrl: playlist.coverImageUrl,
+                    Visibility: visibility,
+                    totalTracks: playlist.tracks.length,
+                    authorId: playlist.authorId
+                };
             }
             else if (existingPlaylistId) {
                 // First get the existing playlist
@@ -222,11 +190,11 @@ const mutations = {
                         tracks: { push: trackIds[0] },
                     },
                 });
+                return null;
             }
             else {
                 throw new Error("Playlist ID is required for updating.");
             }
-            return true;
         }
         catch (error) {
             console.error("Error adding song to playlist:", error);

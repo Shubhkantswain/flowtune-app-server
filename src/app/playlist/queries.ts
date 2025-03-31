@@ -1,5 +1,4 @@
 export const queries = `#graphql
-    getCurrentUserPlaylists: UserPlaylistsResponse!
+    getCurrentUserPlaylists: [Playlist!]!
     getPlaylistTracks(playlistId: String!): getPlaylistTracksResponse!
-    getFeedPlaylists: UserPlaylistsResponse!
 `  
