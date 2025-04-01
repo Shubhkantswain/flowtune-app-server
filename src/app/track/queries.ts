@@ -3,6 +3,6 @@ export const queries = `#graphql
     getExploreTracks(page: Int!): [Track!]
     getLikedTracks:[Track!]
     getTracksByGenreId(genreId: String!): [Track!]!
-    getSearchTracks(searchQuery: String!): [Track!]!
+    getSearchTracks(input: SearchInput!): [Track!]!
     getRecentTracks(recentTracks: [String!]!): [Track!]!
 `

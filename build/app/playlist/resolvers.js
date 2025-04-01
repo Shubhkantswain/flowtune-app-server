@@ -50,6 +50,34 @@ const queries = {
             throw new Error("Failed to fetch user playlists.");
         }
     }),
+    getExplorePlaylists: (parent_1, _a, context_1) => __awaiter(void 0, [parent_1, _a, context_1], void 0, function* (parent, { page }, context) {
+        try {
+            const playlists = yield db_1.prismaClient.playlist.findMany({
+                select: {
+                    id: true,
+                    name: true,
+                    coverImageUrl: true,
+                    Visibility: true,
+                    tracks: true,
+                    authorId: true,
+                },
+                skip: (Math.max(page, 1) - 1) * 24, // Ensure pagination is safe
+                take: page == 1 ? 24 : 18, // Limit to 5 results per page
+            });
+            return playlists.map((playlist) => ({
+                id: playlist.id,
+                name: playlist.name,
+                coverImageUrl: playlist.coverImageUrl,
+                Visibility: playlist.Visibility,
+                totalTracks: playlist.tracks[0] != "" ? playlist.tracks.length : 0,
+                authorId: playlist.authorId
+            }));
+        }
+        catch (error) {
+            console.error("Error fetching playlists:", error);
+            throw new Error("Failed to fetch user playlists.");
+        }
+    }),
     getPlaylistTracks: (parent_1, _a, context_1) => __awaiter(void 0, [parent_1, _a, context_1], void 0, function* (parent, { playlistId }, context) {
         var _b;
         const userId = (_b = context.user) === null || _b === void 0 ? void 0 : _b.id;

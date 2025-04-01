@@ -13,6 +13,11 @@ export const types = `#graphql
         genre: [String!]!
     }
 
+    input SearchInput {
+        page: Int!
+        query: String!
+    }
+
     type Track {
         id: ID!    
 

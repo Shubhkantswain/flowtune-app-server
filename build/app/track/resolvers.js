@@ -106,13 +106,14 @@ const queries = {
         const shuffledTracks = tracks.sort(() => Math.random() - 0.5);
         return shuffledTracks.map(track => (Object.assign(Object.assign({}, track), { hasLiked: userId ? track.likes.length > 0 : false })));
     }),
-    getSearchTracks: (_parent_1, _a, _ctx_1) => __awaiter(void 0, [_parent_1, _a, _ctx_1], void 0, function* (_parent, { searchQuery }, _ctx) {
+    getSearchTracks: (_parent_1, _a, _ctx_1) => __awaiter(void 0, [_parent_1, _a, _ctx_1], void 0, function* (_parent, { input }, _ctx) {
         var _b;
         const userId = (_b = _ctx === null || _ctx === void 0 ? void 0 : _ctx.user) === null || _b === void 0 ? void 0 : _b.id; // Get the current user's ID
+        const { page, query } = input;
         const tracks = yield db_1.prismaClient.track.findMany({
             where: {
                 title: {
-                    contains: searchQuery,
+                    contains: query,
                     mode: 'insensitive' // Makes the search case-insensitive
                 }
             },
@@ -132,6 +133,8 @@ const queries = {
                         select: { userId: true },
                     } : undefined
             },
+            skip: (Math.max(page, 1) - 1) * 4, // Ensure pagination is safe
+            take: 4, // Limit to 5 results per page
         });
         return tracks.map(track => (Object.assign(Object.assign({}, track), { hasLiked: userId ? track.likes.length > 0 : false })));
     }),

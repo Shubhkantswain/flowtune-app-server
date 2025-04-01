@@ -70,6 +70,35 @@ const queries = {
         }
     },
 
+    getExplorePlaylists: async (parent: unknown, {page}: {page: number}, context: GraphqlContext) => {
+        try {
+            const playlists = await prismaClient.playlist.findMany({
+                select: {
+                    id: true,
+                    name: true,
+                    coverImageUrl: true,
+                    Visibility: true,
+                    tracks: true,
+                    authorId: true,
+                },
+                skip: (Math.max(page, 1) - 1) * 24, // Ensure pagination is safe
+                take: page == 1 ? 24 : 18, // Limit to 5 results per page
+            });
+
+            return playlists.map((playlist) => ({
+                id: playlist.id,
+                name: playlist.name,
+                coverImageUrl: playlist.coverImageUrl,
+                Visibility: playlist.Visibility,
+                totalTracks: playlist.tracks[0] != "" ? playlist.tracks.length : 0,
+                authorId: playlist.authorId
+            }))
+        } catch (error) {
+            console.error("Error fetching playlists:", error);
+            throw new Error("Failed to fetch user playlists.");
+        }
+    },
+
     getPlaylistTracks: async (parent: unknown, { playlistId }: { playlistId: string }, context: GraphqlContext) => {
         const userId = context.user?.id;
 

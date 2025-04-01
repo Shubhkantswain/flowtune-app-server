@@ -25,6 +25,12 @@ export const genreIds = {
     "Xcv0ZQW2": "Children Music"
 };
 
+interface SearchInput {
+    page: number
+    query: string
+}
+
+
 const queries = {
     getFeedTracks: async (_parent: any, _args: any, ctx: GraphqlContext) => {
         try {
@@ -109,13 +115,14 @@ const queries = {
         }));
     },
 
-    getSearchTracks: async (_parent: any, { searchQuery }: { searchQuery: string }, _ctx: GraphqlContext) => {
+    getSearchTracks: async (_parent: any, { input }: { input: SearchInput }, _ctx: GraphqlContext) => {
         const userId = _ctx?.user?.id; // Get the current user's ID
+        const { page, query } = input
 
         const tracks = await prismaClient.track.findMany({
             where: {
                 title: {
-                    contains: searchQuery,
+                    contains: query,
                     mode: 'insensitive' // Makes the search case-insensitive
                 }
             },
@@ -135,6 +142,8 @@ const queries = {
                         select: { userId: true },
                     } : undefined
             },
+            skip: (Math.max(page, 1) - 1) * 4, // Ensure pagination is safe
+            take: 4, // Limit to 5 results per page
         });
 
         return tracks.map(track => ({
