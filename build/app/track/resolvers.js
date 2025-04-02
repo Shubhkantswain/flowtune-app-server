@@ -81,7 +81,10 @@ const queries = {
         const language = ((_c = ctx === null || ctx === void 0 ? void 0 : ctx.user) === null || _c === void 0 ? void 0 : _c.language) || "Hindi";
         const tracks = yield db_1.prismaClient.track.findMany({
             where: {
-                language
+                AND: [
+                    { language: language }, // Assuming 'language' is a variable
+                    { authorId: "cm8r434ge0000cs2a87bpbfdc" }
+                ]
             },
             select: {
                 id: true,

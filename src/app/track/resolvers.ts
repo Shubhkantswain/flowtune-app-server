@@ -84,8 +84,11 @@ const queries = {
 
         const tracks = await prismaClient.track.findMany({
             where: {
-                language
-            },
+                AND: [ // Use AND to combine multiple conditions
+                    { language: language }, // Assuming 'language' is a variable
+                    { authorId: "cm8r434ge0000cs2a87bpbfdc" }
+                ]
+            },        
             select: {
                 id: true,
                 title: true,
