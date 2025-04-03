@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = exports.queries = void 0;
 const db_1 = require("../../clients/db");
 const JWTService_1 = __importDefault(require("../../services/JWTService"));
+const cloudinary_1 = require("cloudinary");
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 exports.queries = {
     getUserProfile: (parent_1, _a, ctx_1) => __awaiter(void 0, [parent_1, _a, ctx_1], void 0, function* (parent, { userId }, ctx) {
         var _b;
@@ -102,6 +104,9 @@ const mutations = {
     changeMusicPreference: (parent_1, _a, ctx_1) => __awaiter(void 0, [parent_1, _a, ctx_1], void 0, function* (parent, { language }, ctx) {
         var _b;
         const userId = (_b = ctx.user) === null || _b === void 0 ? void 0 : _b.id;
+        if (!userId) {
+            throw new Error("Please Login/Signup first");
+        }
         const user = yield db_1.prismaClient.user.update({
             where: { id: userId },
             data: {
@@ -141,6 +146,67 @@ const mutations = {
                 });
                 return true; // followed
             }
+            // Handle any other errors
+            console.error("Error toggling like:", error);
+            throw new Error(error.message || "An error occurred while toggling the like on the post.");
+        }
+    }),
+    updateUserProfile: (parent_1, _a, ctx_1) => __awaiter(void 0, [parent_1, _a, ctx_1], void 0, function* (parent, { payload }, ctx) {
+        var _b;
+        try {
+            const userId = (_b = ctx.user) === null || _b === void 0 ? void 0 : _b.id;
+            if (!userId)
+                throw new Error('Unauthorized: User not authenticated');
+            const { imgUrl, username, fullName, oldPassword, newPassword, bio } = payload;
+            // 1. Fetch user with proper error handling
+            const user = yield db_1.prismaClient.user.findUnique({
+                where: { id: userId },
+                select: {
+                    id: true,
+                    password: true,
+                    profileImageURL: true,
+                    username: true,
+                    fullName: true,
+                    bio: true
+                }
+            });
+            if (!user)
+                throw new Error('User not found');
+            // 2. Handle image upload (only if new image provided)
+            let uploadImageResult = user.profileImageURL;
+            if (imgUrl && imgUrl !== user.profileImageURL) {
+                const res = yield cloudinary_1.v2.uploader.upload(imgUrl, {
+                    resource_type: 'auto',
+                });
+                uploadImageResult = res.secure_url;
+            }
+            // 3. Password change logic
+            let passwordToUpdate = user.password;
+            if (oldPassword && newPassword) {
+                const isMatch = yield bcryptjs_1.default.compare(oldPassword, user.password);
+                if (!isMatch)
+                    throw new Error('Current password is incorrect');
+                if (oldPassword === newPassword) {
+                    throw new Error('New password must be different from current password');
+                }
+                passwordToUpdate = yield bcryptjs_1.default.hash(newPassword, 12); // Increased salt rounds
+            }
+            // 4. Update user data
+            const updatedUser = yield db_1.prismaClient.user.update({
+                where: { id: userId },
+                data: {
+                    profileImageURL: uploadImageResult,
+                    username: username || user.username,
+                    fullName: fullName || user.fullName,
+                    password: passwordToUpdate,
+                    bio: bio || user.bio,
+                    updatedAt: new Date() // Always update timestamp
+                },
+                select: { id: true } // Only return what's needed
+            });
+            return !!updatedUser; // Return boolean success indicator
+        }
+        catch (error) {
             // Handle any other errors
             console.error("Error toggling like:", error);
             throw new Error(error.message || "An error occurred while toggling the like on the post.");

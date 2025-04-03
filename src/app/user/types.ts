@@ -13,4 +13,13 @@ export const types = `#graphql
         userId: String!
         page: Int!
     }
+
+    input UpdateUserProfilePayload {
+        imgUrl: String
+        username: String
+        fullName: String
+        oldPassword: String
+        newPassword: String
+        bio: String
+    }
 `
