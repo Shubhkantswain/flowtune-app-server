@@ -64,7 +64,7 @@ const queries = {
 
             return playlists.map((playlist) => ({
                 id: playlist.id,
-                name: playlist.name,
+                name: playlist.name.split("-")[0].trim(),
                 coverImageUrl: playlist.coverImageUrl,
                 Visibility: playlist.Visibility,
                 totalTracks: playlist.tracks[0] != "" ? playlist.tracks.length : 0,
@@ -76,9 +76,16 @@ const queries = {
         }
     },
 
-    getExplorePlaylists: async (parent: unknown, {page}: {page: number}, context: GraphqlContext) => {
+    getExplorePlaylists: async (parent: unknown, {page}: {page: number}, ctx: GraphqlContext) => {
+        const language = ctx.user?.language || "Hindi"
+
         try {
             const playlists = await prismaClient.playlist.findMany({
+                where: {
+                    name: {
+                        contains: language,
+                    }
+                },
                 select: {
                     id: true,
                     name: true,
@@ -93,12 +100,12 @@ const queries = {
 
             return playlists.map((playlist) => ({
                 id: playlist.id,
-                name: playlist.name,
+                name: playlist.name.split('-')[0].trim(),
                 coverImageUrl: playlist.coverImageUrl,
                 Visibility: playlist.Visibility,
-                totalTracks: playlist.tracks[0] != "" ? playlist.tracks.length : 0,
+                totalTracks: playlist.tracks[0] !== "" ? playlist.tracks.length : 0,
                 authorId: playlist.authorId
-            }))
+            }))            
         } catch (error) {
             console.error("Error fetching playlists:", error);
             throw new Error("Failed to fetch user playlists.");
@@ -196,6 +203,7 @@ const queries = {
     
             return playlists.map(playlist => ({
                 ...playlist,
+                name: playlist.name.split("-")[0].trim(),
                 totalTracks: playlist.tracks.length, // Efficient check for user like
             }));
         },

@@ -79,6 +79,7 @@ const queries = {
         var _b, _c;
         const userId = (_b = ctx === null || ctx === void 0 ? void 0 : ctx.user) === null || _b === void 0 ? void 0 : _b.id; // Get the current user's ID
         const language = ((_c = ctx === null || ctx === void 0 ? void 0 : ctx.user) === null || _c === void 0 ? void 0 : _c.language) || "Hindi";
+        console.log("language", language);
         const tracks = yield db_1.prismaClient.track.findMany({
             where: {
                 AND: [
@@ -103,10 +104,11 @@ const queries = {
                     } : undefined
             },
             skip: (Math.max(page, 1) - 1) * 24, // Ensure pagination is safe
-            take: page == 1 ? 24 : 18, // Limit to 5 results per page
+            take: page == 1 ? 24 : 16, // Limit to 5 results per page
         });
         // Shuffle the tracks array to ensure randomness
         const shuffledTracks = tracks.sort(() => Math.random() - 0.5);
+        console.log("shuffledTracks", shuffledTracks);
         return shuffledTracks.map(track => (Object.assign(Object.assign({}, track), { hasLiked: userId ? track.likes.length > 0 : false })));
     }),
     getSearchTracks: (_parent_1, _a, _ctx_1) => __awaiter(void 0, [_parent_1, _a, _ctx_1], void 0, function* (_parent, { input }, _ctx) {

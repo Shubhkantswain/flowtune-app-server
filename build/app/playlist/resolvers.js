@@ -38,7 +38,7 @@ const queries = {
             });
             return playlists.map((playlist) => ({
                 id: playlist.id,
-                name: playlist.name,
+                name: playlist.name.split("-")[0].trim(),
                 coverImageUrl: playlist.coverImageUrl,
                 Visibility: playlist.Visibility,
                 totalTracks: playlist.tracks[0] != "" ? playlist.tracks.length : 0,
@@ -50,9 +50,16 @@ const queries = {
             throw new Error("Failed to fetch user playlists.");
         }
     }),
-    getExplorePlaylists: (parent_1, _a, context_1) => __awaiter(void 0, [parent_1, _a, context_1], void 0, function* (parent, { page }, context) {
+    getExplorePlaylists: (parent_1, _a, ctx_1) => __awaiter(void 0, [parent_1, _a, ctx_1], void 0, function* (parent, { page }, ctx) {
+        var _b;
+        const language = ((_b = ctx.user) === null || _b === void 0 ? void 0 : _b.language) || "Hindi";
         try {
             const playlists = yield db_1.prismaClient.playlist.findMany({
+                where: {
+                    name: {
+                        contains: language,
+                    }
+                },
                 select: {
                     id: true,
                     name: true,
@@ -66,10 +73,10 @@ const queries = {
             });
             return playlists.map((playlist) => ({
                 id: playlist.id,
-                name: playlist.name,
+                name: playlist.name.split('-')[0].trim(),
                 coverImageUrl: playlist.coverImageUrl,
                 Visibility: playlist.Visibility,
-                totalTracks: playlist.tracks[0] != "" ? playlist.tracks.length : 0,
+                totalTracks: playlist.tracks[0] !== "" ? playlist.tracks.length : 0,
                 authorId: playlist.authorId
             }));
         }
@@ -159,7 +166,7 @@ const queries = {
             skip: (Math.max(page, 1) - 1) * 15, // Ensure pagination is safe
             take: 15, // Limit to 5 results per page
         });
-        return playlists.map(playlist => (Object.assign(Object.assign({}, playlist), { totalTracks: playlist.tracks.length })));
+        return playlists.map(playlist => (Object.assign(Object.assign({}, playlist), { name: playlist.name.split("-")[0].trim(), totalTracks: playlist.tracks.length })));
     }),
 };
 const mutations = {
