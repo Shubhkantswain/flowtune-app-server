@@ -4,6 +4,11 @@ import JWTService from "../../services/JWTService";
 import { v2 as cloudinary } from 'cloudinary';
 import bcrypt from 'bcryptjs'
 
+interface SearchInput {
+    page: number
+    query: string
+}
+
 interface GetUserTracksPayload {
     userId: string;
     page: number;
@@ -26,6 +31,9 @@ export const queries = {
     ) => {
         try {
             const currentUserId = ctx.user?.id;
+            if (userId == "cm8r434ge0000cs2a87bpbfdc" && currentUserId != "cm8r434ge0000cs2a87bpbfdc") {
+                return null
+            }
 
             const user = await prismaClient.user.findUnique({
                 where: { id: userId },
@@ -116,6 +124,32 @@ export const queries = {
         }
     },
 
+    getSearchUser: async (_parent: any, { input }: { input: SearchInput }, _ctx: GraphqlContext) => {
+        const userId = _ctx?.user?.id; // Get the current user's ID
+        const { page, query } = input
+
+        const users = await prismaClient.user.findMany({
+            where: {
+                username: {
+                    contains: query,
+                    mode: 'insensitive' // Makes the search case-insensitive
+                }
+            },
+            select: {
+               id: true,
+               username: true,
+               profileImageURL: true
+            },
+            skip: (Math.max(page, 1) - 1) * 15, // Ensure pagination is safe
+            take: 15, // Limit to 5 results per page
+        });
+
+        return users.map(user => ({
+           id: user.id,
+           username: user.username,
+           profileImageURL: user.profileImageURL
+        }));
+    },
 
 };
 
@@ -181,72 +215,72 @@ const mutations = {
         parent: any,
         { payload }: { payload: UpdateUserProfilePayload },
         ctx: GraphqlContext
-      ) => {
+    ) => {
         try {
-          const userId = ctx.user?.id;
-          if (!userId) throw new Error('Unauthorized: User not authenticated');
-      
-          const { imgUrl, username, fullName, oldPassword, newPassword, bio } = payload;
-      
-          // 1. Fetch user with proper error handling
-          const user = await prismaClient.user.findUnique({
-            where: { id: userId },
-            select: {
-              id: true,
-              password: true,
-              profileImageURL: true,
-              username: true,
-              fullName: true,
-              bio: true
-            }
-          });
-      
-          if (!user) throw new Error('User not found');
-      
-          // 2. Handle image upload (only if new image provided)
-          let uploadImageResult = user.profileImageURL;
-          if (imgUrl && imgUrl !== user.profileImageURL) {
-            const res = await cloudinary.uploader.upload(imgUrl, {
-              resource_type: 'auto',
+            const userId = ctx.user?.id;
+            if (!userId) throw new Error('Unauthorized: User not authenticated');
+
+            const { imgUrl, username, fullName, oldPassword, newPassword, bio } = payload;
+
+            // 1. Fetch user with proper error handling
+            const user = await prismaClient.user.findUnique({
+                where: { id: userId },
+                select: {
+                    id: true,
+                    password: true,
+                    profileImageURL: true,
+                    username: true,
+                    fullName: true,
+                    bio: true
+                }
             });
-            uploadImageResult = res.secure_url;
-          }
-      
-          // 3. Password change logic
-          let passwordToUpdate = user.password;
-          if (oldPassword && newPassword) {
-            const isMatch = await bcrypt.compare(oldPassword, user.password);
-            if (!isMatch) throw new Error('Current password is incorrect');
-            
-            if (oldPassword === newPassword) {
-              throw new Error('New password must be different from current password');
+
+            if (!user) throw new Error('User not found');
+
+            // 2. Handle image upload (only if new image provided)
+            let uploadImageResult = user.profileImageURL;
+            if (imgUrl && imgUrl !== user.profileImageURL) {
+                const res = await cloudinary.uploader.upload(imgUrl, {
+                    resource_type: 'auto',
+                });
+                uploadImageResult = res.secure_url;
             }
-      
-            passwordToUpdate = await bcrypt.hash(newPassword, 12); // Increased salt rounds
-          }
-      
-          // 4. Update user data
-          const updatedUser = await prismaClient.user.update({
-            where: { id: userId },
-            data: {
-              profileImageURL: uploadImageResult,
-              username: username || user.username,
-              fullName: fullName || user.fullName,
-              password: passwordToUpdate,
-              bio: bio || user.bio,
-              updatedAt: new Date() // Always update timestamp
-            },
-            select: { id: true } // Only return what's needed
-          });
-      
-          return !!updatedUser; // Return boolean success indicator
-      
+
+            // 3. Password change logic
+            let passwordToUpdate = user.password;
+            if (oldPassword && newPassword) {
+                const isMatch = await bcrypt.compare(oldPassword, user.password);
+                if (!isMatch) throw new Error('Current password is incorrect');
+
+                if (oldPassword === newPassword) {
+                    throw new Error('New password must be different from current password');
+                }
+
+                passwordToUpdate = await bcrypt.hash(newPassword, 12); // Increased salt rounds
+            }
+
+            // 4. Update user data
+            const updatedUser = await prismaClient.user.update({
+                where: { id: userId },
+                data: {
+                    profileImageURL: uploadImageResult,
+                    username: username || user.username,
+                    fullName: fullName || user.fullName,
+                    password: passwordToUpdate,
+                    bio: bio || user.bio,
+                    updatedAt: new Date() // Always update timestamp
+                },
+                select: { id: true } // Only return what's needed
+            });
+
+            return !!updatedUser; // Return boolean success indicator
+
         } catch (error: any) {
             // Handle any other errors
             console.error("Error toggling like:", error);
             throw new Error(error.message || "An error occurred while toggling the like on the post.");
         }
-      }
+    }
 }
 
 export const resolvers = { queries, mutations }

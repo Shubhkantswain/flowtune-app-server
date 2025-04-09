@@ -136,8 +136,8 @@ const queries = {
                         select: { userId: true },
                     } : undefined
             },
-            skip: (Math.max(page, 1) - 1) * 4, // Ensure pagination is safe
-            take: 4, // Limit to 5 results per page
+            skip: (Math.max(page, 1) - 1) * 15, // Ensure pagination is safe
+            take: 15, // Limit to 5 results per page
         });
         return tracks.map(track => (Object.assign(Object.assign({}, track), { hasLiked: userId ? track.likes.length > 0 : false })));
     }),

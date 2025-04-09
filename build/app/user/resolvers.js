@@ -22,6 +22,9 @@ exports.queries = {
         var _b;
         try {
             const currentUserId = (_b = ctx.user) === null || _b === void 0 ? void 0 : _b.id;
+            if (userId == "cm8r434ge0000cs2a87bpbfdc" && currentUserId != "cm8r434ge0000cs2a87bpbfdc") {
+                return null;
+            }
             const user = yield db_1.prismaClient.user.findUnique({
                 where: { id: userId },
                 select: {
@@ -98,6 +101,31 @@ exports.queries = {
             console.error("Error fetching user tracks:", error);
             throw new Error(error.message || "Failed to fetch user tracks. Please try again.");
         }
+    }),
+    getSearchUser: (_parent_1, _a, _ctx_1) => __awaiter(void 0, [_parent_1, _a, _ctx_1], void 0, function* (_parent, { input }, _ctx) {
+        var _b;
+        const userId = (_b = _ctx === null || _ctx === void 0 ? void 0 : _ctx.user) === null || _b === void 0 ? void 0 : _b.id; // Get the current user's ID
+        const { page, query } = input;
+        const users = yield db_1.prismaClient.user.findMany({
+            where: {
+                username: {
+                    contains: query,
+                    mode: 'insensitive' // Makes the search case-insensitive
+                }
+            },
+            select: {
+                id: true,
+                username: true,
+                profileImageURL: true
+            },
+            skip: (Math.max(page, 1) - 1) * 15, // Ensure pagination is safe
+            take: 15, // Limit to 5 results per page
+        });
+        return users.map(user => ({
+            id: user.id,
+            username: user.username,
+            profileImageURL: user.profileImageURL
+        }));
     }),
 };
 const mutations = {

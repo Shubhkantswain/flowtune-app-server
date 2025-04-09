@@ -9,6 +9,12 @@ export const types = `#graphql
         followedByMe: Boolean!
     }
 
+    type SearchUserResponse {
+        id: ID!
+        username: String!
+        profileImageURL: String
+    }
+
     input GetUserTracksPayload {
         userId: String!
         page: Int!
