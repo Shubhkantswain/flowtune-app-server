@@ -76,7 +76,7 @@ const queries = {
         }
     },
 
-    getExplorePlaylists: async (parent: unknown, {page}: {page: number}, ctx: GraphqlContext) => {
+    getExplorePlaylists: async (parent: unknown, { page }: { page: number }, ctx: GraphqlContext) => {
         const language = ctx.user?.language || "Hindi"
 
         try {
@@ -105,7 +105,7 @@ const queries = {
                 Visibility: playlist.Visibility,
                 totalTracks: playlist.tracks[0] !== "" ? playlist.tracks.length : 0,
                 authorId: playlist.authorId
-            }))            
+            }))
         } catch (error) {
             console.error("Error fetching playlists:", error);
             throw new Error("Failed to fetch user playlists.");
@@ -152,13 +152,14 @@ const queries = {
                     videoUrl: track.videoUrl,
                     audioFileUrl: track.audioFileUrl,
                     hasLiked: userId ? track.likes.length > 0 : false,
-                    authorId: track.authorId
+                    authorId: track.authorId,
+                    createdAt: track.createdAt.toISOString() // 👈 Convert Date to String
                 }
             })
 
             return {
                 id: playlist.id,
-                title: playlist.name,
+                title: playlist.name.split("-")[0].trim(),
                 coverImageUrl: playlist.coverImageUrl,
                 tracks: trackItems
             }
@@ -170,43 +171,43 @@ const queries = {
     },
 
     getSearchPlaylists: async (_parent: any, { input }: { input: SearchInput }, _ctx: GraphqlContext) => {
-            const userId = _ctx?.user?.id; // Get the current user's ID
-            const { page, query } = input
-    
-            const playlists = await prismaClient.playlist.findMany({
-                where: {
-                    name: {
-                        contains: query,
-                        mode: 'insensitive' // Makes the search case-insensitive
-                    }
-                },
-                // type Playlist {
-                //     id: ID!
-                //     name: String!
-                //     coverImageUrl: String!
-                //     Visibility: Visibility!
-                //     totalTracks: Int!
-                //     authorId: String!
-                //   }
-                  
-                select: {
-                    id: true,
-                    name: true,
-                    coverImageUrl: true,
-                    Visibility: true,
-                    tracks: true,
-                    authorId: true,
-                },
-                skip: (Math.max(page, 1) - 1) * 15, // Ensure pagination is safe
-                take: 15, // Limit to 5 results per page
-            });
-    
-            return playlists.map(playlist => ({
-                ...playlist,
-                name: playlist.name.split("-")[0].trim(),
-                totalTracks: playlist.tracks.length, // Efficient check for user like
-            }));
-        },
+        const userId = _ctx?.user?.id; // Get the current user's ID
+        const { page, query } = input
+
+        const playlists = await prismaClient.playlist.findMany({
+            where: {
+                name: {
+                    contains: query,
+                    mode: 'insensitive' // Makes the search case-insensitive
+                }
+            },
+            // type Playlist {
+            //     id: ID!
+            //     name: String!
+            //     coverImageUrl: String!
+            //     Visibility: Visibility!
+            //     totalTracks: Int!
+            //     authorId: String!
+            //   }
+
+            select: {
+                id: true,
+                name: true,
+                coverImageUrl: true,
+                Visibility: true,
+                tracks: true,
+                authorId: true,
+            },
+            skip: (Math.max(page, 1) - 1) * 15, // Ensure pagination is safe
+            take: 15, // Limit to 5 results per page
+        });
+
+        return playlists.map(playlist => ({
+            ...playlist,
+            name: playlist.name.split("-")[0].trim(),
+            totalTracks: playlist.tracks.length, // Efficient check for user like
+        }));
+    },
 };
 
 const mutations = {

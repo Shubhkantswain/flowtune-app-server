@@ -35,5 +35,7 @@ exports.types = `#graphql
             
         hasLiked: Boolean!
         authorId: String!
+
+        createdAt: String
     }
 `;

@@ -121,12 +121,13 @@ const queries = {
                     videoUrl: track.videoUrl,
                     audioFileUrl: track.audioFileUrl,
                     hasLiked: userId ? track.likes.length > 0 : false,
-                    authorId: track.authorId
+                    authorId: track.authorId,
+                    createdAt: track.createdAt.toISOString() // 👈 Convert Date to String
                 };
             });
             return {
                 id: playlist.id,
-                title: playlist.name,
+                title: playlist.name.split("-")[0].trim(),
                 coverImageUrl: playlist.coverImageUrl,
                 tracks: trackItems
             };
