@@ -39,6 +39,11 @@ input RemoveSongFromPlaylistInput {
   trackId: String!
 }
 
+input getCurrentUserPlaylistsInput {
+  page: Int!
+  limit: Int!
+}
+
 enum Visibility {
   PUBLIC
   PRIVATE

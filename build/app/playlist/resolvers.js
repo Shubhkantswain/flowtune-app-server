@@ -18,12 +18,13 @@ var Visibility;
     Visibility["PRIVATE"] = "PRIVATE";
 })(Visibility || (exports.Visibility = Visibility = {}));
 const queries = {
-    getCurrentUserPlaylists: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
-        const userId = (_a = context.user) === null || _a === void 0 ? void 0 : _a.id;
+    getCurrentUserPlaylists: (parent_1, _a, context_1) => __awaiter(void 0, [parent_1, _a, context_1], void 0, function* (parent, { input }, context) {
+        var _b;
+        const userId = (_b = context.user) === null || _b === void 0 ? void 0 : _b.id;
         if (!userId) {
             return { playlists: null };
         }
+        const { page, limit } = input;
         try {
             const playlists = yield db_1.prismaClient.playlist.findMany({
                 where: { authorId: userId },
@@ -35,6 +36,8 @@ const queries = {
                     tracks: true,
                     authorId: true,
                 },
+                skip: (Math.max(page, 1) - 1) * limit, // Ensure pagination is safe
+                take: limit, // Limit to 5 results per page
             });
             return playlists.map((playlist) => ({
                 id: playlist.id,
@@ -69,7 +72,7 @@ const queries = {
                     authorId: true,
                 },
                 skip: (Math.max(page, 1) - 1) * 24, // Ensure pagination is safe
-                take: page == 1 ? 24 : 18, // Limit to 5 results per page
+                take: page == 1 ? 24 : 16, // Limit to 5 results per page
             });
             return playlists.map((playlist) => ({
                 id: playlist.id,

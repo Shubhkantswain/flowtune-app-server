@@ -40,15 +40,20 @@ interface SearchPlaylistPayload {
     page: number;  // The page number for pagination, required
 }
 
+interface GetCurrentUserPlaylistsInput {
+    page: number;
+    limit: number;
+}
+
 
 const queries = {
-    getCurrentUserPlaylists: async (parent: unknown, args: unknown, context: GraphqlContext) => {
+    getCurrentUserPlaylists: async (parent: unknown, { input }: { input: GetCurrentUserPlaylistsInput }, context: GraphqlContext) => {
         const userId = context.user?.id;
 
         if (!userId) {
             return { playlists: null };
         }
-
+        const { page, limit } = input
         try {
             const playlists = await prismaClient.playlist.findMany({
                 where: { authorId: userId },
@@ -60,6 +65,8 @@ const queries = {
                     tracks: true,
                     authorId: true,
                 },
+                skip: (Math.max(page, 1) - 1) * limit, // Ensure pagination is safe
+                take: limit, // Limit to 5 results per page
             });
 
             return playlists.map((playlist) => ({
@@ -95,7 +102,7 @@ const queries = {
                     authorId: true,
                 },
                 skip: (Math.max(page, 1) - 1) * 24, // Ensure pagination is safe
-                take: page == 1 ? 24 : 18, // Limit to 5 results per page
+                take: page == 1 ? 24 : 16, // Limit to 5 results per page
             });
 
             return playlists.map((playlist) => ({
