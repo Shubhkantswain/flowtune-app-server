@@ -180,10 +180,8 @@ const queries = {
         }
     }),
     getLikedTracks: (_parent, _args, _ctx) => __awaiter(void 0, void 0, void 0, function* () {
-        if (!_ctx.user) {
-            throw new Error("User not authenticated");
-        }
-        const userId = _ctx.user.id; // Get the current user's ID
+        var _a;
+        const userId = (_a = _ctx === null || _ctx === void 0 ? void 0 : _ctx.user) === null || _a === void 0 ? void 0 : _a.id; // Get the current user's ID
         try {
             const likedTracks = yield db_1.prismaClient.like.findMany({
                 where: {

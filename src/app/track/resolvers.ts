@@ -203,11 +203,7 @@ const queries = {
     },
 
     getLikedTracks: async (_parent: any, _args: any, _ctx: GraphqlContext) => {
-        if (!_ctx.user) {
-            throw new Error("User not authenticated");
-        }
-
-        const userId = _ctx.user.id; // Get the current user's ID
+        const userId = _ctx?.user?.id; // Get the current user's ID
 
         try {
             const likedTracks = await prismaClient.like.findMany({
