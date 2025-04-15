@@ -84,7 +84,7 @@ const queries = {
             where: {
                 AND: [
                     { language: language }, // Assuming 'language' is a variable
-                    { authorId: "cm8r434ge0000cs2a87bpbfdc" }
+                    { authorId: "cm9i26zxh0000l62qizxjnrgd" }
                 ]
             },
             select: {
