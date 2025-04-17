@@ -232,14 +232,14 @@ const mutations = {
         try {
             const { name, coverImageUrl, visibility, trackIds } = payload;
 
-            const uploadResult = await cloudinary.uploader.upload(coverImageUrl, {
-                resource_type: "auto",
-            });
+            // const uploadResult = await cloudinary.uploader.upload(coverImageUrl, {
+            //     resource_type: "auto",
+            // });
 
             const playlist = await prismaClient.playlist.create({
                 data: {
                     name,
-                    coverImageUrl: uploadResult.secure_url,
+                    coverImageUrl: "uploadResult.secure_url",
                     Visibility: visibility,
                     tracks: trackIds,
                     authorId: userId,
