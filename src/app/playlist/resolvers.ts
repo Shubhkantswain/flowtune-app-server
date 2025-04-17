@@ -313,6 +313,10 @@ const mutations = {
                     throw new Error("Playlist not found.");
                 }
 
+                if(existingPlaylist.tracks.length >= 20){
+                    throw new Error("Sorry, you have reach your limit");
+                }
+
                 // Check if track is already in the playlist
                 if (existingPlaylist.tracks.includes(trackIds[0])) {
                     throw new Error("Track already exists in the playlist.");
