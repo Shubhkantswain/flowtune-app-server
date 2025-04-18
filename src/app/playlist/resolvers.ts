@@ -101,7 +101,7 @@ const queries = {
                     tracks: true,
                     authorId: true,
                 },
-                skip: (Math.max(page, 1) - 1) * 24, // Ensure pagination is safe
+                skip: page === 1 ? 0 : 24 + (page - 2) * 16, // Ensure pagination is safe
                 take: page == 1 ? 24 : 16, // Limit to 5 results per page
             });
 

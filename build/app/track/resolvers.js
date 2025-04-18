@@ -79,7 +79,7 @@ const queries = {
         var _b, _c;
         const userId = (_b = ctx === null || ctx === void 0 ? void 0 : ctx.user) === null || _b === void 0 ? void 0 : _b.id; // Get the current user's ID
         const language = ((_c = ctx === null || ctx === void 0 ? void 0 : ctx.user) === null || _c === void 0 ? void 0 : _c.language) || "Hindi";
-        console.log("language", language);
+        console.log("page", page);
         const tracks = yield db_1.prismaClient.track.findMany({
             where: {
                 AND: [
@@ -103,7 +103,7 @@ const queries = {
                         select: { userId: true },
                     } : undefined
             },
-            skip: (Math.max(page, 1) - 1) * 24, // Ensure pagination is safe
+            skip: page === 1 ? 0 : 24 + (page - 2) * 16, // Ensure pagination is safe
             take: page == 1 ? 24 : 16, // Limit to 5 results per page
         });
         // Shuffle the tracks array to ensure randomness

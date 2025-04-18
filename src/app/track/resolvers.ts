@@ -82,15 +82,15 @@ const queries = {
         const userId = ctx?.user?.id; // Get the current user's ID
         const language = ctx?.user?.language || "Hindi"
 
-        console.log("language", language);
-        
+        console.log("page", page);
+
         const tracks = await prismaClient.track.findMany({
             where: {
                 AND: [ // Use AND to combine multiple conditions
                     { language: language }, // Assuming 'language' is a variable
                     { authorId: "cm9i26zxh0000l62qizxjnrgd" }
                 ]
-            },        
+            },
             select: {
                 id: true,
                 title: true,
@@ -107,7 +107,7 @@ const queries = {
                         select: { userId: true },
                     } : undefined
             },
-            skip: (Math.max(page, 1) - 1) * 24, // Ensure pagination is safe
+            skip: page === 1 ? 0 : 24 + (page - 2) * 16, // Ensure pagination is safe
             take: page == 1 ? 24 : 16, // Limit to 5 results per page
         });
 
@@ -115,7 +115,7 @@ const queries = {
         const shuffledTracks = tracks.sort(() => Math.random() - 0.5);
 
         console.log("shuffledTracks", shuffledTracks);
-        
+
         return shuffledTracks.map(track => ({
             ...track,
             hasLiked: userId ? track.likes.length > 0 : false, // Efficient check for user like
