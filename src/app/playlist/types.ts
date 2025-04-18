@@ -16,6 +16,7 @@ type getPlaylistTracksResponse {
   title: String!
   coverImageUrl: String!
   tracks: [Track!]
+  authorId: String!
 }
 
 input CreatePlaylistInput {

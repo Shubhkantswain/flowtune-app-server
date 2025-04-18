@@ -168,7 +168,8 @@ const queries = {
                 id: playlist.id,
                 title: playlist.name.split("-")[0].trim(),
                 coverImageUrl: playlist.coverImageUrl,
-                tracks: trackItems
+                tracks: trackItems,
+                authorId: playlist.authorId
             }
 
         } catch (error) {
