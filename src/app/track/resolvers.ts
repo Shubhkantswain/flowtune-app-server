@@ -30,6 +30,10 @@ interface SearchInput {
     query: string
 }
 
+interface GetTracksByGenreIdInput {
+    genreId: string;
+    page: number;
+}
 
 const queries = {
     getFeedTracks: async (_parent: any, _args: any, ctx: GraphqlContext) => {
@@ -248,9 +252,10 @@ const queries = {
 
     // First define valid genre types
 
-    getTracksByGenreId: async (_parent: any, { genreId }: { genreId: string }, ctx: GraphqlContext) => {
+    getTracksByGenreId: async (_parent: any, { input }: { input: GetTracksByGenreIdInput }, ctx: GraphqlContext) => {
         type GenreKey = keyof typeof genreIds;
         const userId = ctx.user?.id
+        const { genreId, page } = input
         try {
             // Find tracks where the genre array contains the provided tag
             const matchingTracks = await prismaClient.track.findMany({
@@ -259,7 +264,6 @@ const queries = {
                         has: genreIds[genreId as GenreKey] // Checks if the genre array contains the tag
                     }
                 },
-                take: 24, // Limit to 5 results
                 orderBy: {
                     createdAt: 'desc' // Get newest tracks first
                 },
@@ -278,13 +282,21 @@ const queries = {
                             where: { userId }, // Check if the specific user has liked the post
                             select: { userId: true },
                         } : undefined
-                }
+                },
+                skip: page === 1 ? 0 : 24 + (page - 2) * 16, // Ensure pagination is safe
+                take: page == 1 ? 24 : 16, // Limit to 5 results per page
             });
 
-            return matchingTracks.map(track => ({
+            // Shuffle the tracks array to ensure randomness
+            const shuffledTracks = matchingTracks.sort(() => Math.random() - 0.5);
+
+            console.log("shuffledTracks", shuffledTracks);
+
+            return shuffledTracks.map(track => ({
                 ...track,
                 hasLiked: userId ? track.likes.length > 0 : false, // Efficient check for user like
             }));
+
         } catch (error) {
             console.error('Error fetching tracks by genre:', error);
             throw new Error('Could not fetch tracks');

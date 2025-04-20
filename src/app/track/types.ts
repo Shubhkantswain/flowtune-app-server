@@ -18,6 +18,11 @@ export const types = `#graphql
         query: String!
     }
 
+    input GetTracksByGenreIdInput {
+        genreId: String!
+        page: Int!
+    }
+
     type Track {
         id: ID!    
 
