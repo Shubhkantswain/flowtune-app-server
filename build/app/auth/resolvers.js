@@ -155,7 +155,7 @@ const mutations = {
                     data: { resetPasswordToken: resetToken, resetPasswordTokenExpiresAt: resetTokenExpiresAt },
                 });
                 // Send reset email
-                yield NodeMailerService_1.default.sendPasswordResetEmail(user.email, `http://localhost:5173/ft/reset-password/${resetToken}`);
+                yield NodeMailerService_1.default.sendPasswordResetEmail(user.email, `https://flowtune-app.pages.dev/ft/reset-password/${resetToken}`);
             }
             // https://flowtune-app.pages.dev/ft/reset-password/${resetToken}
             // Send response

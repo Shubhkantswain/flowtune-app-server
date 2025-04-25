@@ -106,6 +106,7 @@ export const queries = {
                     videoUrl: true,
                     audioFileUrl: true,
                     authorId: true,
+                    createdAt: true,
                     likes: ctx.user?.id
                         ? { where: { userId: ctx.user.id }, select: { userId: true } }
                         : undefined, // Skip if not logged in
@@ -117,6 +118,7 @@ export const queries = {
             return tracks.map((track) => ({
                 ...track,
                 hasLiked: ctx.user?.id ? track.likes.length > 0 : false, // Efficient check for user like
+                createdAt: track.createdAt.toISOString() // 👈 Convert Date to String
             }));
         } catch (error: any) {
             console.error("Error fetching user tracks:", error);

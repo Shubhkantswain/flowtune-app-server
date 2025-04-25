@@ -132,10 +132,17 @@ const queries = {
 
         const tracks = await prismaClient.track.findMany({
             where: {
-                title: {
-                    contains: query,
-                    mode: 'insensitive' // Makes the search case-insensitive
-                }
+                AND: [
+                    {
+                        title: {
+                            contains: query,
+                            mode: 'insensitive', // Case-insensitive search
+                        },
+                    },
+                    {
+                        authorId: "cm9i26zxh0000l62qizxjnrgd",
+                    },
+                ],
             },
             select: {
                 id: true,
@@ -153,8 +160,8 @@ const queries = {
                         select: { userId: true },
                     } : undefined
             },
-            skip: (Math.max(page, 1) - 1) * 15, // Ensure pagination is safe
-            take: 15, // Limit to 5 results per page
+            skip: (Math.max(page, 1) - 1) * 5, // Ensure pagination is safe
+            take: 5, // Limit to 5 results per page
         });
 
         return tracks.map(track => ({

@@ -170,7 +170,7 @@ const mutations = {
                 });
 
                 // Send reset email
-                await NodeMailerService.sendPasswordResetEmail(user.email, `http://localhost:5173/ft/reset-password/${resetToken}`)
+                await NodeMailerService.sendPasswordResetEmail(user.email, `https://flowtune-app.pages.dev/ft/reset-password/${resetToken}`)
             }
 
             // https://flowtune-app.pages.dev/ft/reset-password/${resetToken}

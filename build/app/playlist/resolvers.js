@@ -59,9 +59,19 @@ const queries = {
         try {
             const playlists = yield db_1.prismaClient.playlist.findMany({
                 where: {
-                    name: {
-                        contains: language,
-                    }
+                    AND: [
+                        {
+                            name: {
+                                contains: language,
+                            },
+                        },
+                        {
+                            authorId: "cm9i26zxh0000l62qizxjnrgd",
+                        },
+                        {
+                            Visibility: "PUBLIC"
+                        }
+                    ],
                 },
                 select: {
                     id: true,
@@ -93,10 +103,15 @@ const queries = {
         const userId = (_b = context.user) === null || _b === void 0 ? void 0 : _b.id;
         try {
             const playlist = yield db_1.prismaClient.playlist.findUnique({
-                where: { id: playlistId }
+                where: {
+                    id: playlistId
+                }
             });
             if (!playlist) {
                 throw new Error("Sorry, Playlist Not Found");
+            }
+            if (playlist.Visibility == "PRIVATE" && userId !== playlist.authorId) {
+                throw new Error("Sorry, Playlist Is Private");
             }
             const trackIds = (playlist === null || playlist === void 0 ? void 0 : playlist.tracks) || [];
             const tracks = yield db_1.prismaClient.track.findMany({
@@ -132,6 +147,7 @@ const queries = {
                 id: playlist.id,
                 title: playlist.name.split("-")[0].trim(),
                 coverImageUrl: playlist.coverImageUrl,
+                visibility: playlist.Visibility,
                 tracks: trackItems,
                 authorId: playlist.authorId
             };
@@ -147,19 +163,21 @@ const queries = {
         const { page, query } = input;
         const playlists = yield db_1.prismaClient.playlist.findMany({
             where: {
-                name: {
-                    contains: query,
-                    mode: 'insensitive' // Makes the search case-insensitive
-                }
+                AND: [
+                    {
+                        name: {
+                            contains: query,
+                            mode: 'insensitive', // Case-insensitive search
+                        },
+                    },
+                    {
+                        authorId: "cm9i26zxh0000l62qizxjnrgd",
+                    },
+                    {
+                        Visibility: "PUBLIC"
+                    }
+                ],
             },
-            // type Playlist {
-            //     id: ID!
-            //     name: String!
-            //     coverImageUrl: String!
-            //     Visibility: Visibility!
-            //     totalTracks: Int!
-            //     authorId: String!
-            //   }
             select: {
                 id: true,
                 name: true,

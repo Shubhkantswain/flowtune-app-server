@@ -18,6 +18,7 @@ type getPlaylistTracksResponse {
   id: String!
   title: String!
   coverImageUrl: String!
+  visibility: Visibility!
   tracks: [Track!]
   authorId: String!
 }

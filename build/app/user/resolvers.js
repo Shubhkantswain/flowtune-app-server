@@ -85,6 +85,7 @@ exports.queries = {
                     videoUrl: true,
                     audioFileUrl: true,
                     authorId: true,
+                    createdAt: true,
                     likes: ((_b = ctx.user) === null || _b === void 0 ? void 0 : _b.id)
                         ? { where: { userId: ctx.user.id }, select: { userId: true } }
                         : undefined, // Skip if not logged in
@@ -94,7 +95,8 @@ exports.queries = {
             });
             return tracks.map((track) => {
                 var _a;
-                return (Object.assign(Object.assign({}, track), { hasLiked: ((_a = ctx.user) === null || _a === void 0 ? void 0 : _a.id) ? track.likes.length > 0 : false }));
+                return (Object.assign(Object.assign({}, track), { hasLiked: ((_a = ctx.user) === null || _a === void 0 ? void 0 : _a.id) ? track.likes.length > 0 : false, createdAt: track.createdAt.toISOString() // 👈 Convert Date to String
+                 }));
             });
         }
         catch (error) {
