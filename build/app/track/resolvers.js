@@ -186,9 +186,9 @@ const queries = {
             throw new Error("Failed to fetch liked tracks");
         }
     }),
-    getLikedTracks: (_parent, _args, _ctx) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
-        const userId = (_a = _ctx === null || _ctx === void 0 ? void 0 : _ctx.user) === null || _a === void 0 ? void 0 : _a.id; // Get the current user's ID
+    getLikedTracks: (_parent_1, _a, _ctx_1) => __awaiter(void 0, [_parent_1, _a, _ctx_1], void 0, function* (_parent, { page }, _ctx) {
+        var _b;
+        const userId = (_b = _ctx === null || _ctx === void 0 ? void 0 : _ctx.user) === null || _b === void 0 ? void 0 : _b.id; // Get the current user's ID
         try {
             const likedTracks = yield db_1.prismaClient.like.findMany({
                 where: {
@@ -208,7 +208,9 @@ const queries = {
                             authorId: true,
                         }
                     }
-                }
+                },
+                skip: (Math.max(page, 1) - 1) * 20, // Ensure pagination is safe
+                take: 20, // Limit to 5 results per page
             });
             return likedTracks.map(like => ({
                 id: like.track.id,
