@@ -108,7 +108,6 @@ const queries = {
         });
         // Shuffle the tracks array to ensure randomness
         const shuffledTracks = tracks.sort(() => Math.random() - 0.5);
-        console.log("shuffledTracks", shuffledTracks);
         return shuffledTracks.map(track => (Object.assign(Object.assign({}, track), { hasLiked: userId ? track.likes.length > 0 : false })));
     }),
     getSearchTracks: (_parent_1, _a, _ctx_1) => __awaiter(void 0, [_parent_1, _a, _ctx_1], void 0, function* (_parent, { input }, _ctx) {

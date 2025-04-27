@@ -118,8 +118,6 @@ const queries = {
         // Shuffle the tracks array to ensure randomness
         const shuffledTracks = tracks.sort(() => Math.random() - 0.5);
 
-        console.log("shuffledTracks", shuffledTracks);
-
         return shuffledTracks.map(track => ({
             ...track,
             hasLiked: userId ? track.likes.length > 0 : false, // Efficient check for user like

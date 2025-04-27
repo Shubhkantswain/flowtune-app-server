@@ -60,17 +60,9 @@ const queries = {
             const playlists = yield db_1.prismaClient.playlist.findMany({
                 where: {
                     AND: [
-                        {
-                            name: {
-                                contains: language,
-                            },
-                        },
-                        {
-                            authorId: "cm9i26zxh0000l62qizxjnrgd",
-                        },
-                        {
-                            Visibility: "PUBLIC"
-                        }
+                        { name: { contains: language } },
+                        { authorId: "cm9i26zxh0000l62qizxjnrgd" },
+                        { Visibility: "PUBLIC" }
                     ],
                 },
                 select: {
@@ -81,16 +73,18 @@ const queries = {
                     tracks: true,
                     authorId: true,
                 },
-                skip: page === 1 ? 0 : 24 + (page - 2) * 16, // Ensure pagination is safe
-                take: page == 1 ? 24 : 16, // Limit to 5 results per page
+                skip: page === 1 ? 0 : 24 + (page - 2) * 16,
+                take: page === 1 ? 24 : 16,
             });
-            return playlists.map((playlist) => ({
+            // Shuffle directly here 👇
+            const shuffledPlaylists = playlists.sort(() => Math.random() - 0.5);
+            return shuffledPlaylists.map((playlist) => ({
                 id: playlist.id,
                 name: playlist.name.split('-')[0].trim(),
                 coverImageUrl: playlist.coverImageUrl,
                 Visibility: playlist.Visibility,
                 totalTracks: playlist.tracks[0] !== "" ? playlist.tracks.length : 0,
-                authorId: playlist.authorId
+                authorId: playlist.authorId,
             }));
         }
         catch (error) {
