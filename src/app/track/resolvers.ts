@@ -211,13 +211,16 @@ const queries = {
         }
     },
 
-    getLikedTracks: async (_parent: any, {page}:{page: number}, _ctx: GraphqlContext) => {
+    getLikedTracks: async (_parent: any, args: any, _ctx: GraphqlContext) => {
         const userId = _ctx?.user?.id; // Get the current user's ID
 
         try {
             const likedTracks = await prismaClient.like.findMany({
                 where: {
                     userId
+                },
+                orderBy: {
+                    createdAt: 'desc' // Sort likes by newest
                 },
                 select: {
                     track: {
@@ -234,8 +237,6 @@ const queries = {
                         }
                     }
                 },
-                skip: (Math.max(page, 1) - 1) * 20, // Ensure pagination is safe
-                take: 20, // Limit to 5 results per page
             });
 
             return likedTracks.map(like => ({
