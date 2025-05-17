@@ -210,14 +210,14 @@ const queries = {
             throw new Error("Failed to fetch liked tracks");
         }
     },
-
+//comments
     getLikedTracks: async (_parent: any, args: any, _ctx: GraphqlContext) => {
         const userId = _ctx?.user?.id; // Get the current user's ID
 
         try {
             const likedTracks = await prismaClient.like.findMany({
                 where: {
-                    userId
+                    userId   
                 },
                 orderBy: {
                     createdAt: 'desc' // Sort likes by newest
